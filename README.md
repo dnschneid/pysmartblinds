@@ -53,3 +53,41 @@ recognized. The next operation made with the library will reset the blind
 position to the last recorded state. Keep in mind that uninstalling the
 MySmartBlinds app does not disable any automations you may have created within
 the app.
+
+
+# Discovering MAC and keys for blinds
+Once you have paired, configured and calibrated your blinds in the MySmartBlinds
+app, you need to discover the MAC address and key in order to speak with it.
+
+There are several ways to find this data. At a high level, you need to snoop the
+BLE packets being sent to the blinds. The key is the 7-byte packet sent to GATT
+handle `0x001b` (characteristic UUID `00001409-1212-efde-1600-785feabcd123`).
+
+The exact method depends on what device you have at your disposal.
+
+## Android
+On Android, you can capture a bluetooth packet log using the built-in developer
+tools.
+
+### Record the bluetooth packet log
+1. [Enable developer options](https://developer.android.com/studio/debug/dev-options#enable).
+2. Turn on "Enable Bluetooth HCI snoop log" in the developer options menu.
+3. Reboot your phone.
+4. Use the MySmartBlinds app to change the tilt of your blinds.
+5. [Capture a bug report](https://developer.android.com/studio/debug/bug-report),
+   and copy it to your computer.
+6. Turn off "Enable Bluetooth HCI snoop log" (and developer options in general
+   if you do not need it).
+7. Reboot your phone again. Until you reboot, all bluetooth traffic will
+   continue to be recorded on your phone.
+
+### Parse the bugreport
+1. Use the `util/extractkeys.py` on the bugreport zip file to extract the MAC
+   and key for any blinds your phone communicated with.
+
+## iPhone
+Unknown. Probably best to borrow an Android device for this task. You may also
+be able to externally sniff the traffic using a device like the
+[Bluefruit](https://learn.adafruit.com/reverse-engineering-a-bluetooth-low-energy-light-bulb/sniff-protocol).
+Once you have the log, you can try using `util/extractkeys.py` to parse out
+the MAC and key, or you can open the log with Wireshark and find it yourself.
