@@ -84,7 +84,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
-        self.wfile.write(BLINDS[blind]['blind'].pos())
+        self.wfile.write(b'%d' % BLINDS[blind]['blind'].pos())
 
 
 if __name__ == "__main__":
