@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
-""" Provides a webserver with push/get endpoints for controlling blinds. """
+""" Provides a webserver with the following endpoints for controlling blinds:
 
-# pylint: disable=import-error,invalid-name
+GET /blind_name/pos: Returns the blind tilt, from 0 (down) to 200 (up).
+POST /blind_name/up: Tilt blind up. Multiple POSTs will increase the speed.
+POST /blind_name/down: Tilt blind down. Multiple POSTs will increase the speed.
+POST /blind_name/stop: Stop the blind at its current tilt.
+POST /blind_name/set/pos: Moves the blind quickly to tilt position [pos].
+POST /blind_name/set/pos/seconds: Moves the blind over the course of [seconds].
+
+Server address and blinds configuration are set via the global variables below.
+"""
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pysmartblinds import Blind
@@ -27,6 +35,8 @@ def init_devices():
 
 class HTTPHandler(BaseHTTPRequestHandler):
     """ Handles HTTP events """
+
+    # pylint: disable=invalid-name
     def do_POST(self):
         """ Handles POST requests """
         params = self.path.split('/')
