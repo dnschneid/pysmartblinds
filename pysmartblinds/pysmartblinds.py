@@ -49,12 +49,13 @@ class Blind(object):
     def __init__(self, mac, key):
         """ Initializes the blind device.
         mac: MAC address string in the form of "12:34:56:78:9A:BC"
-        key: 7-byte key either as a tuple of ints or a string in the form of
-             "123456789abcde"
+        key: 3- or 7-byte key either as a tuple of ints or a string in the form
+             of "123456789abcde"
         """
         self._mac = mac[:17].upper()
         if isinstance(key, str):
-            key = tuple(int(key[i*2:i*2+2], 16) for i in range(7))
+            key = tuple(int(key[i*2:i*2+2], 16)
+                        for i in range(int(len(key)/2)))
         self._key = key[:7]
         self._callback = None
 
