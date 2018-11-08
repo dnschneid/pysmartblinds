@@ -60,8 +60,9 @@ Once you have paired, configured and calibrated your blinds in the MySmartBlinds
 app, you need to discover the MAC address and key in order to speak with it.
 
 There are several ways to find this data. At a high level, you need to snoop the
-BLE packets being sent to the blinds. The key is the 7-byte packet sent to GATT
-handle `0x001b` (characteristic UUID `00001409-1212-efde-1600-785feabcd123`).
+BLE packets being sent to the blinds. The key is the 3- or 7-byte packet sent to
+GATT handle `0x001b` (characteristic UUID
+`00001409-1212-efde-1600-785feabcd123`).
 
 The exact method depends on what device you have at your disposal.
 
@@ -70,6 +71,10 @@ On Android, you can capture a bluetooth packet log using the built-in developer
 tools.
 
 ### Record the bluetooth packet log
+These instructions depend on the OS version and phone manufacturer.  See [this
+page](https://stackoverflow.com/a/30352487/2288993) if the following doesn't
+work.
+
 1. [Enable developer options](https://developer.android.com/studio/debug/dev-options#enable).
 2. Turn on "Enable Bluetooth HCI snoop log" in the developer options menu.
 3. Reboot your phone.
