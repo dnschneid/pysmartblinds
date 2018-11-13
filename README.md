@@ -67,5 +67,5 @@ However, it seems that only the first byte in the key is actually needed, so it
 doesn't take too long to scan for it, and this library provides a means to do
 so.
 
-`scan.py` in the examples folder wraps this functionality; just run it and see
+`search.py` in the examples folder wraps this functionality; just run it and see
 what it returns.
