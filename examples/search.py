@@ -32,15 +32,15 @@ def keyscan(mac):
     """ Searches a MAC address for a working key. """
     log("[%s]: .." % mac)
     blind = pysmartblinds.Blind(mac)
-    key = None
-    while key is None:
+    result = None
+    while result is None:
         log("\b\b%02x" % blind.key())
-        key = blind.keyscan()
-    if key >= 0:
+        result = blind.keyscan()
+    if result:
         log('\n')
-    else:
-        log('\b\bkeyscan failed\n')
-    return key
+        return blind.key()
+    log('\b\bkeyscan failed\n')
+    return None
 
 
 def main():
@@ -51,7 +51,7 @@ def main():
         macs = sys.argv[1:]
     for mac in macs:
         data = keyscan(mac)
-        if data >= 0:
+        if data is not None:
             sys.stdout.write("%s = %02x\n" % (mac, data))
 
 if __name__ == "__main__":
