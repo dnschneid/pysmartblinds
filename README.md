@@ -40,9 +40,9 @@ app, to pair, configure, and calibrate your blinds.
 
 ### Key retrieval
 Since the blinds are paired to your MySmartBlinds account, you will need to
-sniff the BLE traffic in order to recover the MAC address and account pairing
-key. Once you have this data, you can use this library either to complement or
-replace the MySmartBlinds app.
+sniff or scan the BLE traffic in order to recover the MAC address and account
+pairing key. Once you have this data, you can use this library either to
+complement or replace the MySmartBlinds app.
 
 ### External adjustments
 The BLE protocol (as of firmware version 2.0) does not include state read-back
@@ -59,40 +59,13 @@ the app.
 Once you have paired, configured and calibrated your blinds in the MySmartBlinds
 app, you need to discover the MAC address and key in order to speak with it.
 
-There are several ways to find this data. At a high level, you need to snoop the
-BLE packets being sent to the blinds. The key is the 3- or 7-byte packet sent to
-GATT handle `0x001b` (characteristic UUID
+At a high level, you need to snoop the BLE packets being sent to the blinds. The
+key is a packet sent to GATT handle `0x001b` (characteristic UUID
 `00001409-1212-efde-1600-785feabcd123`).
 
-The exact method depends on what device you have at your disposal.
+However, it seems that only the first byte in the key is actually needed, so it
+doesn't take too long to scan for it, and this library provides a means to do
+so.
 
-## Android
-On Android, you can capture a bluetooth packet log using the built-in developer
-tools.
-
-### Record the bluetooth packet log
-These instructions depend on the OS version and phone manufacturer.  See [this
-page](https://stackoverflow.com/a/30352487/2288993) if the following doesn't
-work.
-
-1. [Enable developer options](https://developer.android.com/studio/debug/dev-options#enable).
-2. Turn on "Enable Bluetooth HCI snoop log" in the developer options menu.
-3. Reboot your phone.
-4. Use the MySmartBlinds app to change the tilt of your blinds.
-5. [Capture a bug report](https://developer.android.com/studio/debug/bug-report),
-   and copy it to your computer.
-6. Turn off "Enable Bluetooth HCI snoop log" (and developer options in general
-   if you do not need it).
-7. Reboot your phone again. Until you reboot, all bluetooth traffic will
-   continue to be recorded on your phone.
-
-### Parse the bugreport
-1. Use the `util/extractkeys.py` on the bugreport zip file to extract the MAC
-   and key for any blinds your phone communicated with.
-
-## iPhone
-Unknown. Probably best to borrow an Android device for this task. You may also
-be able to externally sniff the traffic using a device like the
-[Bluefruit](https://learn.adafruit.com/reverse-engineering-a-bluetooth-low-energy-light-bulb/sniff-protocol).
-Once you have the log, you can try using `util/extractkeys.py` to parse out
-the MAC and key, or you can open the log with Wireshark and find it yourself.
+`scan.py` in the examples folder wraps this functionality; just run it and see
+what it returns.

@@ -10,7 +10,7 @@ cover:
       livingroom:
         friendly_name: Living Room Blinds
         mac: 12:34:56:78:9A:BC
-        access_token: 123456789abcde
+        access_token: ab
 
 For more details about this platform, please refer to the documentation at
 https://github.com/dnschneid/pysmartblinds
@@ -34,7 +34,7 @@ _LOGGER = logging.getLogger(__name__)
 
 CONF_BLINDS = 'blinds'
 MAC_REGEX = '^([0-9a-fA-F]{2}(:|$)){6}$'
-TOKEN_REGEX = '^[0-9a-fA-F]{6,14}$'
+TOKEN_REGEX = '^[0-9a-fA-F]+$'
 
 ATTR_TRANSITION = 'transition'
 
@@ -67,8 +67,6 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         friendly_name = device_config.get(CONF_FRIENDLY_NAME, device)
         mac = device_config.get(CONF_MAC)[:17]
         token = device_config.get(CONF_ACCESS_TOKEN)
-        token = tuple(int(token[i*2:i*2+2], 16)
-                      for i in range(int(len(token)/2)))
 
         blinds.append(
             CoverMySmartBlinds(

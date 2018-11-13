@@ -35,9 +35,25 @@ from threading import Timer
 import pygatt
 
 
+def scan(seconds=10):
+    """ Performs a scan for MySmartBlinds blinds.
+    Returns a list of MAC address strings.
+    """
+    ble_names = {'SmartBlind_DFU'}
+    gatt = pygatt.GATTToolBackend()
+    try:
+        gatt.start(reset_on_start=False)
+        devices = gatt.scan(timeout=seconds)
+    finally:
+        gatt.stop()
+    return [dev['address'] for dev in devices if dev['name'] in ble_names]
+
+
 class Blind(object):
     """ Manages a single MySmartBlinds blind. """
     BLEError = pygatt.exceptions.BLEError
+
+    KEYSCAN_FAILED = -1
 
     _MIN_STEP = 1
     _MIN_DELAY = 0.5
@@ -46,17 +62,18 @@ class Blind(object):
     _KEY_HANDLE = 0x001b
     _SET_HANDLE = 0x001f
 
-    def __init__(self, mac, key):
+    def __init__(self, mac, key=0):
         """ Initializes the blind device.
         mac: MAC address string in the form of "12:34:56:78:9A:BC"
-        key: 3- or 7-byte key either as a tuple of ints or a string in the form
-             of "123456789abcde"
+        key: 1-byte key either as an int or a string in the form of "ab"
         """
         self._mac = mac[:17].upper()
         if isinstance(key, str):
-            key = tuple(int(key[i*2:i*2+2], 16)
-                        for i in range(int(len(key)/2)))
-        self._key = key[:7]
+            self._key = int(key[0:2], 16)
+        elif isinstance(key, int):
+            self._key = key
+        else:
+            self._key = key[0]
         self._callback = None
 
         self._pos = 0
@@ -76,9 +93,12 @@ class Blind(object):
                 self._dev = self._gatt.connect(
                     self._mac,
                     address_type=pygatt.backends.BLEAddressType.random)
-                self._dev.char_write_handle(Blind._KEY_HANDLE, self._key,
+                self._dev.char_write_handle(Blind._KEY_HANDLE, (self._key,),
                                             True)
         except pygatt.exceptions.NotConnectedError:
+            self._disconnect()
+            return False
+        except pygatt.exceptions.NotificationTimeout:
             self._disconnect()
             return False
         except pygatt.exceptions.BLEError as exception:
@@ -102,6 +122,9 @@ class Blind(object):
         except pygatt.exceptions.NotConnectedError:
             self._disconnect()
             return False
+        except pygatt.exceptions.NotificationTimeout:
+            self._disconnect()
+            return False
         except pygatt.exceptions.BLEError as exception:
             self._disconnect()
             raise exception
@@ -112,7 +135,7 @@ class Blind(object):
 
     def _update(self):
         if not self._dir:
-            return
+            return True
         ideal_step = abs(self._dir) * Blind._MIN_DELAY
         actual_step = max(ceil(ideal_step), Blind._MIN_STEP)
         delay = Blind._MIN_DELAY * actual_step / ideal_step
@@ -128,6 +151,27 @@ class Blind(object):
         else:
             self.stop()
         return True
+
+    def keyscan(self):
+        """ Continues a search for the blind's key; returns >= 0 if found """
+        self.stop()
+        tries = 3
+        while not self._set(200):
+            tries -= 1
+            if tries == 0:
+                return Blind.KEYSCAN_FAILED
+        if self._set(200):
+            return self._key
+        elif self._key == 0xFF:
+            self._key = 0
+            return Blind.KEYSCAN_FAILED
+        else:
+            self._key += 1
+            return None
+
+    def key(self):
+        """ Returns the current key. """
+        return self._key
 
     def set_callback(self, callback=None):
         """ Sets or clears a callback for whenever the blinds change state. """
