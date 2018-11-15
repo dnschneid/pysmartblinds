@@ -53,6 +53,7 @@ class Blind(object):
     """ Manages a single MySmartBlinds blind. """
     BLEError = pygatt.exceptions.BLEError
 
+    _KEYSCAN_RETRIES = 5
     _MIN_STEP = 1
     _MIN_DELAY = 0.5
     _MIN_TRANSITION_TIME = 1
@@ -157,7 +158,7 @@ class Blind(object):
         returns True if the key was found (see key())
         """
         self.stop()
-        tries = 3
+        tries = Blind._KEYSCAN_RETRIES
         while not self._set(200):
             tries -= 1
             if tries == 0:
