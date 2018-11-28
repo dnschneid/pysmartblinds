@@ -136,12 +136,12 @@ class CoverMySmartBlinds(CoverDevice):
         return False
 
     def open_cover_tilt(self, **kwargs):
-        """Tilt the cover open. We define that as tilting down."""
-        self._blind.down()
+        """Tilt the cover open. We define that as tilting up."""
+        self._blind.up()
 
     def close_cover_tilt(self, **kwargs):
-        """Tilt the cover closed. We define that as tilting up."""
-        self._blind.up()
+        """Tilt the cover closed. We define that as tilting down."""
+        self._blind.down()
 
     def stop_cover_tilt(self, **kwargs):
         """Stop the cover tilting."""
