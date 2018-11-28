@@ -21,7 +21,8 @@ import voluptuous as vol
 
 from homeassistant.components.cover import (
     CoverDevice, PLATFORM_SCHEMA,
-    SERVICE_TO_METHOD, SERVICE_SET_COVER_TILT_POSITION,
+    # SERVICE_TO_METHOD,
+    SERVICE_SET_COVER_TILT_POSITION,
     SUPPORT_OPEN_TILT, SUPPORT_CLOSE_TILT, SUPPORT_STOP_TILT,
     SUPPORT_SET_TILT_POSITION, ATTR_TILT_POSITION)
 from homeassistant.const import (
@@ -51,12 +52,12 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_BLINDS): vol.Schema({cv.slug: BLIND_SCHEMA}),
 })
 
-SERVICE_TO_METHOD[SERVICE_SET_COVER_TILT_POSITION]['schema'] = (
-    SERVICE_TO_METHOD[SERVICE_SET_COVER_TILT_POSITION]['schema'].extend({
-        vol.Optional(ATTR_TRANSITION):
-            vol.All(vol.Coerce(float), vol.Range(min=0)),
-    })
-)
+# SERVICE_TO_METHOD[SERVICE_SET_COVER_TILT_POSITION]['schema'] = (
+#     SERVICE_TO_METHOD[SERVICE_SET_COVER_TILT_POSITION]['schema'].extend({
+#         vol.Optional(ATTR_TRANSITION):
+#             vol.All(vol.Coerce(float), vol.Range(min=0)),
+#     })
+# )
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
