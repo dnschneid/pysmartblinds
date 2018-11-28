@@ -60,6 +60,7 @@ class Blind(object):
     _BASE_RATE = 200.0 / 10.0
     _KEY_HANDLE = 0x001b
     _SET_HANDLE = 0x001f
+    _BLE_TIMEOUT = 7.0
 
     def __init__(self, mac, key=0):
         """ Initializes the blind device.
@@ -91,6 +92,7 @@ class Blind(object):
             if not self._dev:
                 self._dev = self._gatt.connect(
                     self._mac,
+                    timeout=self._BLE_TIMEOUT,
                     address_type=pygatt.backends.BLEAddressType.random)
                 self._dev.char_write_handle(Blind._KEY_HANDLE, (self._key,),
                                             True)
