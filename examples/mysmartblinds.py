@@ -135,8 +135,16 @@ class CoverMySmartBlinds(CoverDevice):
         """Return the polling state."""
         return False
 
+    def open_cover(self, **kwargs):
+        """Tilt the cover open."""
+        self._blind.up()
+
     def open_cover_tilt(self, **kwargs):
         """Tilt the cover open. We define that as tilting down."""
+        self._blind.down()
+
+    def close_cover(self, **kwargs):
+        """Tilt the cover closed."""
         self._blind.down()
 
     def close_cover_tilt(self, **kwargs):
