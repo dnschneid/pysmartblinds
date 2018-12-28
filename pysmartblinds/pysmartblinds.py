@@ -64,15 +64,17 @@ class Blind(object):
     def __init__(self, mac, key=0):
         """ Initializes the blind device.
         mac: MAC address string in the form of "12:34:56:78:9A:BC"
-        key: 1-byte key either as an int or a string in the form of "ab"
+        key: multibyte key either as a tuple of ints or a string in the form of
+             "abcdef123456"
         """
         self._mac = mac[:17].upper()
         if isinstance(key, str):
-            self._key = int(key[0:2], 16)
+            self._key = tuple(int(key[i*2:i*2+2], 16)
+                              for i in range(int(len(key)/2)))
         elif isinstance(key, int):
-            self._key = key
+            self._key = (key,)
         else:
-            self._key = key[0]
+            self._key = tuple(key)
         self._callback = None
 
         self._pos = 0
@@ -92,8 +94,7 @@ class Blind(object):
                 self._dev = self._gatt.connect(
                     self._mac,
                     address_type=pygatt.backends.BLEAddressType.random)
-                self._dev.char_write_handle(Blind._KEY_HANDLE, (self._key,),
-                                            True)
+                self._dev.char_write_handle(Blind._KEY_HANDLE, self._key, True)
         except pygatt.exceptions.NotConnectedError:
             self._disconnect()
             return False
@@ -165,11 +166,11 @@ class Blind(object):
                 return False
         if self._set(200):
             return True
-        elif self._key == 0xFF:
-            self._key = 0
+        elif self._key[0] == 0xFF:
+            self._key = (0,)
             return False
         else:
-            self._key += 1
+            self._key = (self._key[0]+1,)
             return None
 
     def key(self):

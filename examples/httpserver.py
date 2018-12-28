@@ -20,7 +20,7 @@ BLINDS = {
     'living_room': {
         'description': 'Living Room',
         'mac': '12:34:56:78:9A:BC',
-        'key': 0xAB,
+        'key': 'abcdef12345678'
     },
 }
 

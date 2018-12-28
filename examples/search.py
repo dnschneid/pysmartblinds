@@ -52,7 +52,9 @@ def main():
     for mac in macs:
         data = keyscan(mac)
         if data is not None:
-            sys.stdout.write("%s = %02x\n" % (mac, data))
+            sys.stdout.write(
+                "%s = %s\n" % (mac, ''.join(('%02x' % x for x in data))))
+
 
 if __name__ == "__main__":
     main()
