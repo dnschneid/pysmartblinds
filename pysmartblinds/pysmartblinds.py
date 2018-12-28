@@ -61,11 +61,12 @@ class Blind(object):
     _KEY_HANDLE = 0x001b
     _SET_HANDLE = 0x001f
 
-    def __init__(self, mac, key=0):
+    def __init__(self, mac, key=None, smart_blinds_client=None):
         """ Initializes the blind device.
         mac: MAC address string in the form of "12:34:56:78:9A:BC"
         key: multibyte key either as a tuple of ints or a string in the form of
              "abcdef123456"
+        smart_blinds_client: an instance of the SmartBridgeClient library
         """
         self._mac = mac[:17].upper()
         if isinstance(key, str):
@@ -73,19 +74,49 @@ class Blind(object):
                               for i in range(int(len(key)/2)))
         elif isinstance(key, int):
             self._key = (key,)
-        else:
+        elif key is not None:
             self._key = tuple(key)
+        elif smart_blinds_client is not None:
+            self._key = None
+        else:
+            self._key = (0,)
+        self._sbc = smart_blinds_client
         self._callback = None
 
         self._pos = 0
         self._dir = 0
         self._target = None
 
+        self._sbcBlind = None
         self._gatt = None
         self._dev = None
         self._pending = Timer(0, None)
 
+    def _getSbcBlind(self):
+        macBytes = bytes(int(x, 16) for x in self._mac.split(':'))
+        try:
+            blinds, _ = self._sbc.get_blinds_and_rooms()
+        except Exception:
+            try:
+                self._sbc.login()
+                blinds, _ = self._sbc.get_blinds_and_rooms()
+            except Exception:
+                return None
+        for blind in blinds:
+            if blind.mac_address == macBytes:
+                return blind
+        return None
+
     def _connect(self):
+        if self._sbcBlind:
+            return True
+        if self._key is None:
+            if self._sbc is None:
+                return False
+            blind = self._getSbcBlind()
+            if blind is None:
+                return False
+            self._key = tuple(x for x in blind.passkey)
         try:
             if not self._gatt:
                 self._gatt = pygatt.GATTToolBackend()
@@ -97,7 +128,11 @@ class Blind(object):
                 self._dev.char_write_handle(Blind._KEY_HANDLE, self._key, True)
         except pygatt.exceptions.NotConnectedError:
             self._disconnect()
-            return False
+            if self._sbc is None:
+                return False
+            self._sbcBlind = self._getSbcBlind()
+            if self._sbcBlind is None:
+                return False
         except pygatt.exceptions.NotificationTimeout:
             self._disconnect()
             return False
@@ -117,17 +152,29 @@ class Blind(object):
         if not self._connect():
             return False
         pos = int(min(max(pos, 0), 200))
-        try:
-            self._dev.char_write_handle(Blind._SET_HANDLE, (pos,), True)
-        except pygatt.exceptions.NotConnectedError:
-            self._disconnect()
-            return False
-        except pygatt.exceptions.NotificationTimeout:
-            self._disconnect()
-            return False
-        except pygatt.exceptions.BLEError as exception:
-            self._disconnect()
-            raise exception
+        if self._sbcBlind is not None:
+            try:
+                self._sbc.set_blinds_position((self._sbcBlind,), pos)
+            except Exception:
+                try:
+                    self._sbc.login()
+                    self._sbc.set_blinds_position((self._sbcBlind,), pos)
+                except Exception:
+                    self._sbcBlind = None
+                    if not self._connect() or self._sbcBlind is not None:
+                        return False
+        if self._sbcBlind is None:
+            try:
+                self._dev.char_write_handle(Blind._SET_HANDLE, (pos,), True)
+            except pygatt.exceptions.NotConnectedError:
+                self._disconnect()
+                return False
+            except pygatt.exceptions.NotificationTimeout:
+                self._disconnect()
+                return False
+            except pygatt.exceptions.BLEError as exception:
+                self._disconnect()
+                raise exception
         self._pos = pos
         if self._callback:
             self._callback()
