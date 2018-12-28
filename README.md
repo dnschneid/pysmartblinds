@@ -63,9 +63,13 @@ At a high level, you need to snoop the BLE packets being sent to the blinds. The
 key is a packet sent to GATT handle `0x001b` (characteristic UUID
 `00001409-1212-efde-1600-785feabcd123`).
 
-However, it seems that only the first byte in the key is actually needed, so it
-doesn't take too long to scan for it, and this library provides a means to do
-so.
+However, in many cases, it seems that only the first byte in the key is actually
+needed, so it doesn't take too long to scan for it, and this library provides a
+means to do so.
 
 `search.py` in the examples folder wraps this functionality; just run it and see
 what it returns.
+
+If `search.py` is unable to determine the key, you may need to use an
+alternative means (such as bluetooth snooping or ianlevesque/smartblinds-client)
+to determine the key.
