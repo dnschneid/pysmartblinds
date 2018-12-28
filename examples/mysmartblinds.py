@@ -10,11 +10,12 @@ cover:
       livingroom:
         friendly_name: Living Room Blinds
         mac: 12:34:56:78:9A:BC
-        access_token: ab
+        access_token: abcdef123456
 
 For more details about this platform, please refer to the documentation at
 https://github.com/dnschneid/pysmartblinds
 """
+
 import logging
 
 import voluptuous as vol
@@ -28,7 +29,7 @@ from homeassistant.const import (
     CONF_ACCESS_TOKEN, CONF_FRIENDLY_NAME, CONF_MAC)
 import homeassistant.helpers.config_validation as cv
 
-from pysmartblinds import Blind
+REQUIREMENTS = ['pygatt==3.2.0', 'pexpect==4.6.0']
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -90,6 +91,7 @@ class CoverMySmartBlinds(CoverDevice):
 
     def __init__(self, hass, device_id, friendly_name, mac, access_token):
         """Initialize the MySmartBlinds cover."""
+        from pysmartblinds import Blind
         self.hass = hass
         self._name = friendly_name
         self._blind = Blind(mac, access_token)
