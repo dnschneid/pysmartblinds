@@ -1,7 +1,8 @@
 """
 HomeAssistant cover component for MySmartBlinds automated blind tilting
 
-Place in .homeassistant/custom_components/cover/
+Place directory contents in .homeassistant/custom_components/mysmartblinds/
+To enable blind transitions, apply cover.patch to your HomeAssistant install.
 
 Example configuration:
 cover:
@@ -22,14 +23,13 @@ import voluptuous as vol
 
 from homeassistant.components.cover import (
     CoverDevice, PLATFORM_SCHEMA,
-    SERVICE_TO_METHOD, SERVICE_SET_COVER_TILT_POSITION,
     SUPPORT_OPEN_TILT, SUPPORT_CLOSE_TILT, SUPPORT_STOP_TILT,
     SUPPORT_SET_TILT_POSITION, ATTR_TILT_POSITION)
 from homeassistant.const import (
     CONF_ACCESS_TOKEN, CONF_FRIENDLY_NAME, CONF_MAC)
 import homeassistant.helpers.config_validation as cv
 
-REQUIREMENTS = ['pygatt==3.2.0', 'pexpect==4.6.0']
+from pysmartblinds import Blind
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,13 +51,6 @@ BLIND_SCHEMA = vol.Schema({
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_BLINDS): vol.Schema({cv.slug: BLIND_SCHEMA}),
 })
-
-SERVICE_TO_METHOD[SERVICE_SET_COVER_TILT_POSITION]['schema'] = (
-    SERVICE_TO_METHOD[SERVICE_SET_COVER_TILT_POSITION]['schema'].extend({
-        vol.Optional(ATTR_TRANSITION):
-            vol.All(vol.Coerce(float), vol.Range(min=0)),
-    })
-)
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -91,7 +84,6 @@ class CoverMySmartBlinds(CoverDevice):
 
     def __init__(self, hass, device_id, friendly_name, mac, access_token):
         """Initialize the MySmartBlinds cover."""
-        from pysmartblinds import Blind
         self.hass = hass
         self._name = friendly_name
         self._blind = Blind(mac, access_token)

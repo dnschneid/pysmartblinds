@@ -1,0 +1,8 @@
+{
+  "domain": "mysmartblinds",
+  "name": "mysmartblinds",
+  "documentation": "https://github.com/dnschneid/pysmartblinds",
+  "dependencies": [],
+  "codeowners": ["@dnschneid"],
+  "requirements": ["pygatt==3.2.0", "pexpect==4.6.0"]
+}
