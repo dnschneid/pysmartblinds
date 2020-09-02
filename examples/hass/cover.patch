@@ -1,11 +1,14 @@
---- a/homeassistant/components/cover/__init__.py	2020-03-11 10:57:30.913768255 -0700
-+++ b/homeassistant/components/cover/__init__.py	2020-03-11 11:04:10.043768159 -0700
-@@ -75,6 +75,7 @@
+--- a/homeassistant/components/cover/__init__.py	2020-08-29 23:14:12.269215106 -0700
++++ b/homeassistant/components/cover/__init__.py	2020-09-01 21:55:35.268154531 -0700
+@@ -78,6 +78,7 @@
  ATTR_CURRENT_TILT_POSITION = "current_tilt_position"
  ATTR_POSITION = "position"
  ATTR_TILT_POSITION = "tilt_position"
 +ATTR_TRANSITION = "transition"
-@@ -128,7 +128,10 @@
+ 
+ 
+ @bind_hass
+@@ -138,7 +139,10 @@
          {
              vol.Required(ATTR_TILT_POSITION): vol.All(
                  vol.Coerce(int), vol.Range(min=0, max=100)
@@ -16,4 +19,4 @@
 +            ),
          },
          "async_set_cover_tilt_position",
-     )
+         [SUPPORT_SET_TILT_POSITION],
