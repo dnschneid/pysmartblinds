@@ -1,6 +1,7 @@
 {
   "domain": "mysmartblinds",
   "name": "mysmartblinds",
+  "version": "0.0.0",
   "documentation": "https://github.com/dnschneid/pysmartblinds",
   "dependencies": [],
   "codeowners": ["@dnschneid"],
