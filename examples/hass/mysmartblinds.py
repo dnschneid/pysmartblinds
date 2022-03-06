@@ -22,7 +22,7 @@ import logging
 import voluptuous as vol
 
 from homeassistant.components.cover import (
-    CoverDevice, PLATFORM_SCHEMA,
+    CoverEntity, PLATFORM_SCHEMA,
     SUPPORT_OPEN_TILT, SUPPORT_CLOSE_TILT, SUPPORT_STOP_TILT,
     SUPPORT_SET_TILT_POSITION, ATTR_TILT_POSITION)
 from homeassistant.const import (
@@ -79,7 +79,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     return True
 
 
-class CoverMySmartBlinds(CoverDevice):
+class CoverMySmartBlinds(CoverEntity):
     """Representation of a MySmartBlinds cover."""
 
     def __init__(self, hass, device_id, friendly_name, mac, access_token):
